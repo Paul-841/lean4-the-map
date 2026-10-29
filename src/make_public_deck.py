@@ -4,11 +4,11 @@ make_public_deck.py —— 从带演讲备注的教学版生成"公开版"（去
 
 用法:
     $env:PYTHONIOENCODING="utf-8"
-    uv run --with python-pptx python D:\Plan\AI_learning_ZCode\_review_v154\make_public_deck.py
+    uv run --with python-pptx python src/make_public_deck.py <版本号>
 
 产出:
-  1) Lean4_The_Map_v15.4_public.pptx  —— 逐页删除 notesSlide 关系，正文/版式零改动
-  2) Lean4_The_Map_v15.4_notes.md     —— 36 条备注全文（页码 + 标题 + 备注正文）
+  1) deck/Lean4_The_Map_<版本号>.pptx  —— 逐页删除 notesSlide 关系，正文/版式零改动
+  2) build/Lean4_The_Map_<版本号>_notes.md —— 该版本的备注全文（页码 + 标题 + 备注正文）
 """
 import os
 import sys
@@ -47,9 +47,9 @@ def slide_title(slide):
 
 # ---- 1. 先把备注全文导出来（删之前） ----
 md = [
-    "# Lean4_The_Map_v15.4 —— 演讲备注全文（36 页）",
+    f"# {STEM} —— 演讲备注全文（{len(prs.slides)} 页）",
     "",
-    "> 本文件由 `make_public_deck.py` 从 `Lean4_The_Map_v15.4.pptx` 自动导出。",
+    f"> 本文件由 `make_public_deck.py` 从 `{STEM}.pptx` 自动导出。",
     "> 格式为讲者备注三段式：`【时间｜定位】` / `主旨` / `要点` / `坑`。",
     "> **内部备课材料，未纳入公开仓库。**",
     "",
