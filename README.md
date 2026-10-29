@@ -1,9 +1,9 @@
 # The Map of Lean 4
 
 **给"PDE 是主场、Lean 是客场"的研究组讲的一份 Lean 4 入门讲义。**
-33 页 · 16:9 · 35.5 分钟幻灯片 + 20 分钟讨论 ｜ 当前版本 **v16.0**
+33 页 · 16:9 · 35.5 分钟幻灯片 + 20 分钟讨论 ｜ 当前版本 **v16.1**
 
-> 版本台账见 [VERSIONS.md](VERSIONS.md)。`deck/` 里同时保留 v15.4 与 v16.0 两版，便于对照。
+> 版本台账见 [VERSIONS.md](VERSIONS.md)。`deck/` 里同时保留 v15.4、v16.0 与 v16.1 三版，便于对照。
 
 ---
 
@@ -44,6 +44,7 @@
 | 水印扫描 | CLEAN |
 | 页内引用 | 全部指向真实页码 |
 | 渲染目视 | LibreOffice → PDF → 33 页 PNG 逐页看过 |
+| 字体覆盖审计（fontTools 逐 run） | `⇒ ⊤ ⊥` **0 处回退**（全部由 Cambria Math 覆盖） |
 
 第 33 页的每一个断言都有实测背书：
 
@@ -60,11 +61,14 @@ lean4-the-map/
 ├── VERSIONS.md                      ← 版本台账（规则 + 每版改了什么）
 ├── LICENSE                          ← MIT
 ├── deck/
-│   ├── Lean4_The_Map_v16.0.pptx     ← 当前版：33 页，无演讲备注
+│   ├── Lean4_The_Map_v16.1.pptx     ← 当前版：33 页，无演讲备注
+│   ├── Lean4_The_Map_v16.1.pdf
+│   ├── Lean4_The_Map_v16.0.pptx     ← 上一版（33 页），保留供对照
 │   ├── Lean4_The_Map_v16.0.pdf
-│   ├── Lean4_The_Map_v15.4.pptx     ← 上一版（36 页），保留供对照
+│   ├── Lean4_The_Map_v15.4.pptx     ← 更早版（36 页），保留供对照
 │   └── Lean4_The_Map_v15.4.pdf
 ├── src/
+│   ├── gen_v16_1.py                 ← v16.1 的真源生成脚本
 │   ├── gen_v16_0.py                 ← v16.0 的真源生成脚本
 │   ├── gen_v14_2.py                 ← v15.4 的真源生成脚本（产出过 v15.1–15.4）
 │   ├── make_public_deck.py          ← 去备注步骤（吃版本号参数）
@@ -78,12 +82,16 @@ lean4-the-map/
 ```bash
 pip install python-pptx
 
-# v16.0（当前版）
-python src/gen_v16_0.py                     # → build/Lean4_The_Map_v16.0.pptx（带演讲备注）
-python src/make_public_deck.py v16.0        # → deck/Lean4_The_Map_v16.0.pptx（去备注）+ build/…_notes.md
-python src/qa_deck.py deck/Lean4_The_Map_v16.0.pptx
+# v16.1（当前版）
+python src/gen_v16_1.py                     # → build/Lean4_The_Map_v16.1.pptx（带演讲备注）
+python src/make_public_deck.py v16.1        # → deck/Lean4_The_Map_v16.1.pptx（去备注）+ build/…_notes.md
+python src/qa_deck.py deck/Lean4_The_Map_v16.1.pptx
 
-# v15.4（上一版）
+# v16.0（上一版）
+python src/gen_v16_0.py                     # → build/Lean4_The_Map_v16.0.pptx
+python src/make_public_deck.py v16.0        # → deck/Lean4_The_Map_v16.0.pptx
+
+# v15.4（更早版，36 页）
 python src/gen_v14_2.py                     # → build/Lean4_The_Map_v15.4.pptx
 python src/make_public_deck.py v15.4        # → deck/Lean4_The_Map_v15.4.pptx
 ```
@@ -91,12 +99,12 @@ python src/make_public_deck.py v15.4        # → deck/Lean4_The_Map_v15.4.pptx
 PDF 用 LibreOffice 转：
 
 ```bash
-soffice --headless --convert-to pdf --outdir deck deck/Lean4_The_Map_v16.0.pptx
+soffice --headless --convert-to pdf --outdir deck deck/Lean4_The_Map_v16.1.pptx
 ```
 
 需要 Lean 环境做代码验证的话：Lean **4.35.0** + Mathlib，练习文件在 `src/Lean4_practice.lean`。
 
-> 与作者本机版本的唯一差别：`src/gen_v16_0.py` / `src/gen_v14_2.py` 的输出路径已改成**相对脚本目录**（原为 Windows 绝对路径），以便任何人克隆后直接跑。其余一字未改。
+> 与作者本机版本的唯一差别：`src/gen_v16_1.py` / `src/gen_v16_0.py` / `src/gen_v14_2.py` 的输出路径已改成**相对脚本目录**（原为 Windows 绝对路径），以便任何人克隆后直接跑。其余一字未改。
 
 ## 关于"公开版"和"教学版"
 
@@ -107,7 +115,7 @@ soffice --headless --convert-to pdf --outdir deck deck/Lean4_The_Map_v16.0.pptx
 | **公开版**（本仓库 `deck/`） | **已移除**（逐页删除 `notesSlide` 关系，zip 内零残留） | 对外分享 |
 | 教学版 | 33 条三段式备注（主旨 / 要点 / 坑） | 讲课时用 |
 
-两份的**正文逐字一致**（592/592 段，差异 0 行）。备注是讲者备课材料（时间预算、每页可能被问倒的地方），不属于讲义内容，因此不进公开仓库；它由 `make_public_deck.py` 导出到 `build/`（已 gitignore）。
+两份的**正文逐字一致**（593/593 段，差异 0 行）。备注是讲者备课材料（时间预算、每页可能被问倒的地方），不属于讲义内容，因此不进公开仓库；它由 `make_public_deck.py` 导出到 `build/`（已 gitignore）。
 
 ## 许可
 
