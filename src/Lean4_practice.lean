@@ -1,6 +1,6 @@
 /-
 The Map of Lean 4 — Practice File
-Pairs with: Lean4_The_Map_v15.4.pptx
+Pairs with: Lean4_The_Map_v16.0.pptx
 Open in: live.lean-lang.org (zero-setup) or a local Lean 4 project.
 
 Every block below compiles. Read the comments, change things on
@@ -330,17 +330,6 @@ theorem nat_zero_add (n : Nat) : 0 + n = n := by
 --   curl, mollifiers, vorticity, Euler equations, weak solution
 --   spaces, Navier-Stokes, and any PDE library (no Analysis/PDE).
 --   "Stokes" appears once, inside a docstring.
--- ============================================================
-
-
--- ============================================================
--- SLIDE 36 — Closer: what would the FIRST formal statement of 2D Euler be?
--- (a) vorticity transport   d/dt w + u.grad(w) = 0
---     Lean has: measure, integral.     Lean lacks: curl, vorticity.
--- (b) energy conservation    d/dt ||u||^2 = 0
---     Lean has: Lp, Sobolev space.      Lean lacks: time derivatives.
--- (c) no blow-up on [0,T]    sup ||u(t)|| < inf
---     Lean has: Sobolev space.         Lean lacks: transport, energy, blow-up.
 -- ============================================================
 
 

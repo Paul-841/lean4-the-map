@@ -11,6 +11,7 @@ make_public_deck.py —— 从带演讲备注的教学版生成"公开版"（去
   2) Lean4_The_Map_v15.4_notes.md     —— 36 条备注全文（页码 + 标题 + 备注正文）
 """
 import os
+import sys
 import zipfile
 from pptx import Presentation
 from pptx.opc.constants import RELATIONSHIP_TYPE as RT
@@ -18,9 +19,11 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.normpath(os.path.join(_HERE, ".."))
 D = _REPO
-SRC = os.path.join(D, "build", "Lean4_The_Map_v15.4.pptx")
-OUT_PPTX = os.path.join(D, "deck", "Lean4_The_Map_v15.4.pptx")
-OUT_MD = os.path.join(D, "build", "Lean4_The_Map_v15.4_notes.md")
+VERSION = sys.argv[1] if len(sys.argv) > 1 else "v16.0"
+STEM = "Lean4_The_Map_" + VERSION
+SRC = os.path.join(D, "build", STEM + ".pptx")
+OUT_PPTX = os.path.join(D, "deck", STEM + ".pptx")
+OUT_MD = os.path.join(D, "build", STEM + "_notes.md")
 
 os.makedirs(os.path.join(D, "build"), exist_ok=True)
 
