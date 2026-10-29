@@ -1,0 +1,5 @@
+# 构建产物（含带演讲备注的 deck 与备注 markdown），不纳入版本控制
+build/
+
+__pycache__/
+*.pyc
