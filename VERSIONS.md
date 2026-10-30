@@ -9,7 +9,7 @@
 
 - 每份交付物**文件名必须带版本号**（pptx / pdf / 报告 / 脚本）。
 - 旧版本**不删**，留在 `deck/` 里，便于对照。
-- 生成脚本按版本分文件：`src/gen_v16_5.py` 是 v16.5 的真源，`src/gen_v16_4.py` 是 v16.4 的真源，`src/gen_v16_3.py` 是 v16.3 的真源，`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
+- 生成脚本按版本分文件：`src/gen_v16_6.py` 是 v16.6 的真源，`src/gen_v16_5.py` 是 v16.5 的真源，`src/gen_v16_4.py` 是 v16.4 的真源，`src/gen_v16_3.py` 是 v16.3 的真源，`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
   （脚本名沿用 v14 时代的 `gen_v14_2` 命名，因为它产出过 v15.1–v15.4；v16.0 起脚本名与版本号对齐。）
 
 ---
@@ -20,7 +20,81 @@
 
 ---
 
-## v16.5 —— 第 19 页「内核只有三种形成类型的方式」字面过头（当前最新版）
+---
+
+## v16.6 —— 第三份外部审阅的逐条核实：13 处修正（当前最新版）
+
+**2026-10-30**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=12`
+
+### 审阅是谁、说了什么
+
+第三份外部审阅，逐页给了"照读成什么"的说法。它自己 #check 过 Mathlib、也读了源码，
+但**没有重编译**，而且有两条事实性错误。本轮把它的每一条断言都上机核了（三轮探针）。
+
+### 审阅成立、已修（4 处屏上 + 9 处备注）
+
+| # | 位置 | 原文 | 改成 | 为什么 |
+|---|---|---|---|---|
+| 1 | p19 灰框 | "structure, class and abbrev are all inductive in disguise" | "structure and class are inductive in disguise; abbrev is only a nickname" | 实测 `abbrev MyAlias := Nat` → `@[reducible] def MyAlias : Type := Nat`，就是 def。**且这一页自己矛盾**：绿框写着"abbrev → just a name, not a type"，p24 写着"abbrev → not a new type at all" |
+| 2 | p19 灰框第 2 段 | "Every type in Mathlib — Measure, Lp, Distribution, the Sobolev space" | "Measure, Lp, Distribution, the Sobolev space — all built out of that machinery: structures (inductives in disguise) and abbreviations over them" | 本机 Mathlib 里 `MeasureTheory.Lp` 是 `def Lp … : AddSubgroup (α →ₘ[μ] E)`（一个函数集合，不是类型），`Distribution` 是 abbrev |
+| 3 | p10 Formation 行 | "you write inductive / def / structure" | "you write inductive / structure / class" | `def` 不声明类型：p18 自己写着"def: name a value"，`def two : Nat := 2` 是个项 |
+| 4 | p10 Introduction 行 | "these are the ONLY ways to make a term" | "these are the ONLY ways to introduce a value" | 字面为假：`2 + 2` 是 Nat 的项，但不是构造子应用 |
+| 5 | p10 Elimination 行 | "this is the ONLY way to USE a term" | "the ONLY way to take that type apart" | 限定到"把这个类型拆开" |
+| 6 | p27 屏上 + 备注 | "let lives in term mode / have lives in proof mode" | "let: term mode (also a tactic). / have: proof mode (also works in a term)." + "Working rules, not laws." | 实测 `def fHave : Nat := have h : True := trivial; 1` **能编译**（Lean 4.35.0）；`let` 也能当 tactic（`example : True := by let x := 5; trivial` 通过） |
+| 7 | p26 备注 | "表达式只有这五种样子，全场再没有第六种" | "到这里已经用过五种样子（第 27 页还会冒出第六种 let）" | 第 27 页就有第六种 |
+| 8 | p6 备注（2 处） | "中间 Lean 真实写法" | "中间类型论词汇" | 中间那列的 `Π`/`Σ`/`⊕` 你在 Lean 里并不这么写（Lean 写的是 `∧ ∨ → ↔ ∀ ∃ =`） |
+| 9 | p7 屏上末行 | "Lean writes … ∃ as ⟨witness, proof⟩" | "for ∃ the statement is ∃ x, P x, and the proof you hand over is ⟨witness, proof⟩" | 命题与证明不是一回事；同一页代码里写的就是 `example : ∃ k : Nat, …` |
+| 10 | p7 备注 | — | 补一条：底下那行 P(0)/P(1) 是另一个谓词 | 别和左边代码的 P 混 |
+| 11 | p32 代码注释 | "core already has Nat.zero_add; we rename it to avoid a name collision" | "core has Nat.zero_add, and Mathlib exports a root-level zero_add too -- so we pick a fresh name" | `Nat.zero_add` 带命名空间，本来就不撞；真正会撞的是 Mathlib 根命名空间的 `zero_add`（实测 `error: zero_add has already been declared`） |
+| 12 | p23 备注 | — | 补一条：`+` 展开就是 `HAdd.hAdd` | 实测 `example : (2 : Nat) + 2 = HAdd.hAdd 2 2 := rfl` 通过；infoview 点 `+` 看到的是 HAdd |
+| 13 | p33 备注（3 处） | "BesselPotentialSpace（这就是 H^{s,p}）" / "eLpNorm_le_eLpNorm_fderiv（Sobolev 不等式）" / 红栏 | 各自补精确读法 + 快照口径 | 见下 |
+
+**p33 三处精确读法（都是给 PDE 听众的）**：
+
+- `BesselPotentialSpace` = Mathlib 自己的 docstring 原话："also known as the Sobolev space and usually denoted by `H^{s,p}`"，
+  是 **Fourier 侧**的定义（缓分布的 Bessel potential 落在 `Lp` 里），不是弱导数那个 `W^{k,p}`；
+  另有一个未打包的谓词 `TemperedDistribution.MemSobolev`。
+- `eLpNorm_le_eLpNorm_fderiv` 的真实语句（实测 `#check`）：`ContDiff ℝ 1 u` + `support u ⊆ s` +
+  `1 ≤ p` + `p < finrank ℝ E` + 有界 `s` + Haar 测度 ⇒ `eLpNorm u p μ ≤ C · eLpNorm (fderiv ℝ u) p μ`。
+  是 **Gagliardo–Nirenberg 型**的估计，**不是 `H^{s,p}` 空间上的定理**；
+  临界嵌入（指数更高）是同文件的 `eLpNorm_le_eLpNorm_fderiv_of_eq`（关系 `(p')⁻¹ = p⁻¹ - (finrank)⁻¹`）。
+- `Distribution` 是**根命名空间**的名字（`MeasureTheory.Distribution` 这个名字不存在），
+  是测试函数上的连续线性泛函 —— 念一句，免得有人听成"概率分布"。
+- 红栏是 **4.35.0 + 那份 Mathlib 的快照**：Lean 4.36.0-rc2 已于 2026-10-27 发布
+  （GitHub releases feed 实测），红栏可能随工具链移动。
+
+### 审阅说错、我不改的
+
+| 审阅的说法 | 实测结论 |
+|---|---|
+| "A top-level `zero_add` would also compile" | **错**。Mathlib 导出了根命名空间的 `zero_add`（`@zero_add : ∀ {M} [AddZeroClass M] (a : M), 0 + a = a`），顶层再写会 `error: zero_add has already been declared` |
+| "Lᵖ sits on the quotient from the left box (functions modulo almost-everywhere equality)" | **与本机 Mathlib 不符**。`Mathlib/MeasureTheory/Function/LpSpace/Basic.lean:89`：`def Lp … : AddSubgroup (α →ₘ[μ] E) where carrier := { f | eLpNorm f p μ < ∞ }`；整个 `LpSpace/` 目录 grep 不到任何 `Quotient` |
+| "⊤ / ⊥ are not core Lean tokens" | **对，但 deck 备注本来就这么写着**（p6 备注第 5 条：纯 core 连这两个 token 都没有）⇒ 不是新缺陷 |
+| "Stop on the ↔ row / Iff is a structure with mp and mpr / hom-set 精确讲是一对箭头" | **deck 备注本来就这么写着**（p6 备注第 3、4 条与坑行）⇒ 不是新缺陷 |
+| 第 32 页那段引文 | 内容对，但**不是逐字引文**：备注原文是"0 + n = n 必须归纳，n + 0 = n 才是 rfl" |
+| "The title slide is dated 29 October 2026. Today is the 30th." | 用户已拍板：**保持 29 October 不动** |
+
+### 验证结果
+
+| 项 | 结果 |
+|---|---|
+| 幻灯片数 / 演讲备注 / 时间预算 | 33 / 33 / 36.0 min（均不变） |
+| 结构 QA | ISSUES: 0 |
+| 字体缺字审计 | 与 v16.5 **零新增**（唯一变化：p7 的 `∃` 计数 5→6，同字符同页） |
+| 按页序整份代码流（Mathlib / core-only） | exit=0 / exit=0 |
+| 30 个代码块逐块编译 | 0 个真语法/类型错误 |
+| 练习文件（Mathlib / core-only） | exit=0 / exit=0 |
+| **v16.5 ↔ v16.6 逐页像素比对** | **只有 p01 / p07 / p10 / p19 / p27 / p32 变化，其余 27 页像素完全一致** |
+| 渲染目视 | p07（末行仍单行未折行）/ p10（三行各单行）/ p19（灰框 4 行在框内）/ p27（第 4 条折 2 行）/ p32（注释 2 行）逐页看过 |
+| 公开版 vs 教学版正文逐段 diff | 0 差异行（599 / 599 段） |
+| 仓库自证 + 远端回验 | ALL GREEN |
+
+v16.6 的真源脚本：`src/gen_v16_6.py`（由 `_review_v160/make_v16_6.py` 从 v16.5 真源打 23 步补丁生成，
+末尾带一道 `compile()` 自检 —— 备注/代码块是 triple-quoted 字符串，整行替换吞掉收尾三引号的坑已经踩过两次）。
+
+---
+
+## v16.5 —— 第 19 页「内核只有三种形成类型的方式」字面过头（上一版）
 
 **2026-10-30**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=11`
 
