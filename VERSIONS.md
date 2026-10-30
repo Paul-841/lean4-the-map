@@ -9,12 +9,65 @@
 
 - 每份交付物**文件名必须带版本号**（pptx / pdf / 报告 / 脚本）。
 - 旧版本**不删**，留在 `deck/` 里，便于对照。
-- 生成脚本按版本分文件：`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
+- 生成脚本按版本分文件：`src/gen_v16_3.py` 是 v16.3 的真源，`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
   （脚本名沿用 v14 时代的 `gen_v14_2` 命名，因为它产出过 v15.1–v15.4；v16.0 起脚本名与版本号对齐。）
 
 ---
 
-## v16.2 —— 第 5 页推导顺序修正（当前最新版）
+---
+
+## v16.3 —— 审计清单 7 项修正（当前最新版）
+
+**2026-10-30**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=9`
+
+### 起因
+
+第三方审计提了一份 2×P0 + 2×P1 + 6×P2 的清单。我逐条上机复核后**认下 7 项**
+（两个审计方最终收敛到同一张表）；其中 2 条经复测后由审计方主动撤回。
+
+### 7 项清单
+
+| # | 位置 | 问题 | 修法 |
+|---|---|---|---|
+| 1 | p33 绿栏 | `InnerProductSpace.laplacian` / `HarmonicAt` 在 Mathlib v4.35.0 里**不存在** | 改成 `Laplacian.laplacian` / `InnerProductSpace.HarmonicAt`（两者都 `#check` 过） |
+| 2 | p33 备注 | 备注里重复了同样的两个错名 | 同步改正，并补 `InnerProductSpace.laplacianWithin` 备查 |
+| 3 | p28 脚注 | "`← and <-> are not types`" 说法错 | 改成三个箭头各司其职：`=>` 是 fun/match 的分隔符、`←` 是反向重写标记、`↔` 是 `Iff`（structure，所以它**是**类型，产出的命题仍在 Prop 里） |
+| 4 | p33 红栏 | `curl` 的 "0 hits" 站不住 | 改 "0 code hits"（唯一一条命中是 `Tactic/Polyrith.lean` 里讲命令行 HTTP 工具的 docstring） |
+| 5 | p33 红栏 | `mollifiers / smoothing` 的 "0 hits" 站不住 | 同上（命中全在 Akra–Bazzi 的 docstring） |
+| 6 | p18 备注 | "`#eval double two` 依赖 slide 17 的 two" | 改掉：这页自己就声明了全局 `two`，**是自足的** |
+| 7 | p32 bullet | "succ case: rewrite, rewrite, rfl" 与代码不符 | 改成 "two rewrites; the second closes it"（succ 分支**没有**显式 `rfl`） |
+
+附带（同口径，事实断言不变）：p33 红栏其余 4 条 "0 hits" 统一成 "0 code hits"；
+p33 两栏各补一行小字澄清（`Δ` 是 scoped notation；stray hits 的出处）；
+p28 备注补一条讲稿兜底；`Lean4_practice.lean` 的版本行与第 33 页注释同步。
+
+### 为什么页面上写全名而不是 Δ
+
+`Laplacian.laplacian` 的记号 `Δ` 是 **scoped notation**
+（`Analysis/Distribution/DerivNotation.lean:270`）—— 不 `open scoped` 直接写会得到
+`unknown identifier`（实测 exit=1）⇒ 页面上写全名，另加一行小字提醒。
+
+### 验证结果
+
+| 项 | 结果 |
+|---|---|
+| 幻灯片数 / 演讲备注 | 33 / 33 |
+| 时间预算 | 36.0 min（不变） |
+| 教学版 QA | ISSUES: 0 |
+| 公开版 vs 教学版正文逐段 diff | **0 差异行**（598 / 598 段） |
+| 公开版 zip 内 notesSlide 片段 | 0（parts 0），非空备注页 0 |
+| 按页序整份代码流（Mathlib / core-only） | exit=0 / exit=0 |
+| 30 个代码块逐块编译 | 0 个真语法/类型错误 |
+| 练习文件（Mathlib / core-only） | exit=0 / exit=0 |
+| 字体缺字审计 | **无新增回退**（`↔ ← → Δ` 均由 Calibri 覆盖） |
+| v16.2 ↔ v16.3 逐页像素比对 | **只有 p01 / p28 / p32 / p33 变化，其余 29 页像素完全一致** |
+| 渲染目视 | 33 页 PNG 逐页看过；p18 / p28 / p32 / p33 重点复核 + 400 dpi 放大 |
+
+v16.3 的真源脚本：`src/gen_v16_3.py`（由 `_review_v160/make_v16_3.py` 从 v16.2 真源打 14 步补丁生成，可复现）。
+
+---
+
+## v16.2 —— 第 5 页推导顺序修正（上一版）
 
 **2026-10-29**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=8`
 

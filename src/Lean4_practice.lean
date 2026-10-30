@@ -1,6 +1,6 @@
 /-
 The Map of Lean 4 — Practice File
-Pairs with: Lean4_The_Map_v16.0.pptx
+Pairs with: Lean4_The_Map_v16.3.pptx  (slide anchors unchanged since v16.0)
 Open in: live.lean-lang.org (zero-setup) or a local Lean 4 project.
 
 Every block below compiles. Read the comments, change things on
@@ -323,13 +323,18 @@ theorem nat_zero_add (n : Nat) : 0 + n = n := by
 --   Distribution, TestFunction, SchwartzMap
 --   BesselPotentialSpace          (= H^{s,p}(E,F), the Sobolev space)
 --   MeasureTheory.eLpNorm_le_eLpNorm_fderiv   (the Sobolev inequality)
---   InnerProductSpace.laplacian, InnerProductSpace.HarmonicAt
+--   Laplacian.laplacian, InnerProductSpace.HarmonicAt
 --   gronwallBound, IsPicardLindelof, FourierTransform
 --
--- Grepped over all 8,624 files and got zero hits:
---   curl, mollifiers, vorticity, Euler equations, weak solution
---   spaces, Navier-Stokes, and any PDE library (no Analysis/PDE).
---   "Stokes" appears once, inside a docstring.
+-- Grepped over all 8,624 files: none of these appears in any
+-- definition or theorem.  The only stray hits are unrelated
+-- docstrings:
+--   curl      -- one docstring, about the command-line HTTP tool
+--   smoothing -- Akra-Bazzi notes about a "smoothing function"
+--   Stokes    -- one docstring
+--   mollifiers, vorticity, transport equations, Euler equations,
+--   weak solution spaces, Navier-Stokes: nothing at all.
+--   There is no Analysis/PDE directory either.
 -- ============================================================
 
 
