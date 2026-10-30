@@ -9,14 +9,86 @@
 
 - 每份交付物**文件名必须带版本号**（pptx / pdf / 报告 / 脚本）。
 - 旧版本**不删**，留在 `deck/` 里，便于对照。
-- 生成脚本按版本分文件：`src/gen_v16_3.py` 是 v16.3 的真源，`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
+- 生成脚本按版本分文件：`src/gen_v16_4.py` 是 v16.4 的真源，`src/gen_v16_3.py` 是 v16.3 的真源，`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
   （脚本名沿用 v14 时代的 `gen_v14_2` 命名，因为它产出过 v15.1–v15.4；v16.0 起脚本名与版本号对齐。）
 
 ---
 
 ---
 
-## v16.3 —— 审计清单 7 项修正（当前最新版）
+---
+
+## v16.4 —— 第 9 页落点句加作用域（当前最新版）
+
+**2026-10-30**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=10`
+
+### 起因
+
+第三方审计翻到第 9 页（"What IS a type? Four rules — not a set"）底部那句：
+
+> No analogy. No 'set of functions'. **The four rules ARE the definition.**
+> **Every type you meet — Nat, Sum, Sigma, Empty — works the same way.**
+
+前两句没问题，第三句越界了。上机实测：
+
+| 类型 | Introduction | Elimination | Computation |
+|---|---|---|---|
+| `A → B`（页上这套） | `fun x => t` | `f a` | β 归约 |
+| `Nat` | `Nat.zero` / `Nat.succ` | `Nat.rec` / `Nat.casesOn` | 递归子展开 |
+| `Sum` | `Sum.inl` / `Sum.inr` | `Sum.rec` | 递归子展开 |
+| `Sigma` | `Sigma.mk` | `Sigma.rec` | 递归子展开 |
+| `Empty` | **零构造子 ⇒ 没有 introduction 规则** | `Empty.rec` / `Empty.elim` | — |
+
+⇒ "works the same way" 字面为假：只有 `A → B` 这一族是 λ / app / β；
+`Empty.intro` 直接报 `Unknown constant`。
+
+而且第 10 页明写的是相反且更精确的说法（"one declaration pins down all four rules"、
+"introduction & computation are per-constructor; formation & elimination are per-type"）——
+第 9 页这半句等于和它自己下一页打架。
+
+**体例问题**：第 19 页讲"内核三个原语"这类简化时，页面专门挂了对冲句
+（"This is a mechanism map, not a closed inventory"），备注还写着"一定要念页面上的对冲句"。
+第 9 页做了同类简化却没挂 —— 违反 deck 自己的规矩。
+
+### 两个审计方的最终裁定
+
+事实全部成立；**严重度从"硬错误 / 与第 10 页冲突"下调一档到"措辞级 P2（缺对冲句）"**：
+四规则是统一施加于所有类型形成者的**框架**，Empty 是"零条引入规则"的合法实例而非反例；
+而且第 9 页右栏本来就写着 "(lambda / constructor)" / "(application / match)"，读者手上的线索是齐的。
+用户已拍板：**只修底部那半句**。
+
+### 改法
+
+```
+No analogy. No 'set of functions'. Every type is defined by four rules —
+formation, introduction, elimination, computation. Same four slots every time,
+different content: inductives use constructors and recursors (next slide);
+Empty has zero constructors, so no introduction rule at all.
+```
+
+保留 "No analogy. No 'set of functions'."（这一页的立身之本是拆掉"类型 = 集合"的直觉），
+把越界的两句换成"每个类型都被四条规则钉住，但四格内容不同"，并显式点名 Empty 的零构造子、
+指向下一页。备注同步加一条"落点句（照读页面底部）"。
+
+### 验证结果
+
+| 项 | 结果 |
+|---|---|
+| 幻灯片数 / 演讲备注 / 时间预算 | 33 / 33 / 36.0 min（均不变） |
+| 结构 QA | ISSUES: 0 |
+| 字体缺字审计 | 与 v16.3 **逐条相同**（15 条历史项，零新增） |
+| 按页序整份代码流（Mathlib / core-only） | exit=0 / exit=0 |
+| 30 个代码块逐块编译 | 0 个真语法/类型错误 |
+| 练习文件（Mathlib / core-only） | exit=0 / exit=0 |
+| **v16.3 ↔ v16.4 逐页像素比对** | **只有 p01（版本号）/ p09 变化，其余 31 页像素完全一致** |
+| 渲染目视 | 33 页 PNG 逐页看过；p09 重点复核（落点面板 2 行，未溢出） |
+| 公开版 vs 教学版正文逐段 diff | 0 差异行（598 / 598 段） |
+
+v16.4 的真源脚本：`src/gen_v16_4.py`（由 `_review_v160/make_v16_4.py` 从 v16.3 真源打 6 步补丁生成）。
+
+---
+
+## v16.3 —— 审计清单 7 项修正（上一版）
 
 **2026-10-30**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=9`
 
