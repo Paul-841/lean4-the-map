@@ -1,6 +1,6 @@
 /-
 The Map of Lean 4 — Practice File
-Pairs with: Lean4_The_Map_v16.4.pptx  (slide anchors unchanged since v16.0)
+Pairs with: Lean4_The_Map_v16.5.pptx  (slide anchors unchanged since v16.0)
 Open in: live.lean-lang.org (zero-setup) or a local Lean 4 project.
 
 Every block below compiles. Read the comments, change things on
@@ -80,8 +80,10 @@ theorem two_plus_two : 2 + 2 = 4 := rfl
 
 -- ============================================================
 -- SLIDE 19 — Built-in vs. you-made
--- LEFT: Lean gives you these already (you cannot change them):
---   Nat, Bool, String, List, ×, Prop, Type, Sort u, →, Quot
+-- LEFT: the kernel's three type-formers (hard-coded, you can never declare them):
+--   Sort u (Prop, Type, Type 1 ...), → / ∀ (Pi type), Quot
+--   plus the types Lean pre-loads for you: Nat, Bool, String, List, ×, ...
+--   (Nat/Bool/List ship pre-loaded, but they are written exactly like yours — inductive)
 -- RIGHT: you build new types with inductive:
 --   Color, MyNat, Point ...
 --   structure = inductive with one constructor + named fields

@@ -9,7 +9,7 @@
 
 - 每份交付物**文件名必须带版本号**（pptx / pdf / 报告 / 脚本）。
 - 旧版本**不删**，留在 `deck/` 里，便于对照。
-- 生成脚本按版本分文件：`src/gen_v16_4.py` 是 v16.4 的真源，`src/gen_v16_3.py` 是 v16.3 的真源，`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
+- 生成脚本按版本分文件：`src/gen_v16_5.py` 是 v16.5 的真源，`src/gen_v16_4.py` 是 v16.4 的真源，`src/gen_v16_3.py` 是 v16.3 的真源，`src/gen_v16_2.py` 是 v16.2 的真源，`src/gen_v16_1.py` 是 v16.1 的真源，`src/gen_v16_0.py` 是 v16.0 的真源，`src/gen_v14_2.py` 是 v15.4 的真源。
   （脚本名沿用 v14 时代的 `gen_v14_2` 命名，因为它产出过 v15.1–v15.4；v16.0 起脚本名与版本号对齐。）
 
 ---
@@ -18,7 +18,92 @@
 
 ---
 
-## v16.4 —— 第 9 页落点句加作用域（当前最新版）
+---
+
+## v16.5 —— 第 19 页「内核只有三种形成类型的方式」字面过头（当前最新版）
+
+**2026-10-30**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=11`
+
+### 起因
+
+第 19 页（Two buckets: what Lean gives you, what you build）左栏原句：
+
+> The kernel **only** knows three ways to form a type:
+>   Sort   (Prop, Type, Type 1 ...)
+>   → / ∀  (Pi type)
+>   Quot   (quotient)
+
+页面下方挂了对冲句（"This is a mechanism map, not a closed inventory — reduction and recursion also live here."），
+备注里也写着"坑：不要说『内核只有这三个』"。所以有一个审计方判定"有对冲句就没事"。
+
+另一个审计方指出措辞要更准（`Nat.rec` 是 term 不是 type；内核的 declaration 里确实有 inductive declaration）。
+我随后上机核了 Lean 4.35.0 内核源码 `src/kernel/declaration.h`，逐字如下：
+
+```cpp
+enum class declaration_kind { Axiom, Definition, Theorem, Opaque, Quot,
+                             MutualDefinition, Inductive };
+enum class constant_info_kind { Axiom, Definition, Theorem, Opaque, Quot,
+                                Inductive, Constructor, Recursor };
+```
+
+同文件另有 `inductive_decl (lparams) (nparams) (types : List InductiveType) (isUnsafe)`
+与 `struct InductiveType { name, type, ctors }`。
+
+⇒ 内核除了 Sort / Pi / Quot，还有**第 4 种形成类型的机制：归纳类型声明**
+（`inductDecl`，连带构造子 `Constructor` 与递归子 `Recursor`）。
+对冲句能挡"这是封闭清单"的读法，**挡不住 `only` 这个字本身** ——
+内核确实不只三种方式形成类型。
+
+### 裁定
+
+**改**。理由不是"措辞不够谨慎"，而是这句可以用内核源码直接证伪；
+本 deck 的体例是"屏上每句话都能被实测/源码钉住"，明知有反例还留着是自砸招牌。
+
+### 改法（只动第 19 页左栏，页数不变）
+
+| | 文本 |
+|---|---|
+| 标题 | `Kernel: three type-formers`（不动） |
+| 首句 | `The kernel only knows three ways to form a type:` → `The kernel has exactly three type-formers:` |
+| 新增一行 | `inductive`（等宽 + 绿色，与右栏同一套）+ ` is not one of these three (see right).` |
+
+- 去掉 `only`，把"形成类型的方式"换成有精确边界的 **type-former**（值级的类型构造子）：
+  Sort / Pi / Quot 正好三个；`inductive` 不是 former，是**声明**，所以归右栏。
+- 新增那行把第 4 种机制**点名并划界**；`inductive` 用与右栏相同的绿 / 等宽 / 粗体，视线直接接上。
+- 备注同步：主旨行 + 坑行。
+- `Lean4_practice.lean` 同步：版本行；SLIDE 19 注释把 LEFT 桶拆成"三个 type-former + Lean 预装的类型"，
+  并补一句"Nat/Bool/List 虽是预装，但写法和你的一样 —— 也是 inductive"
+  （原注释把它们和 Sort / → / Quot 混在一桶，与屏上右栏"AND Nat, Bool, List!"对不上）。
+
+### 未做（记录，避免下一轮重复讨论）
+
+- 底部面板 `There is exactly ONE way to add a type` 不动：同句自带限定语
+  （structure / class / abbrev 全是 inductive 换皮）。残留边角：
+  `axiom Foo : Type` / `opaque Foo : Type` 也能造出一个类型（无构造子、不可消去），属退化用法，
+  本轮只记录，不动屏。
+- 第 9 页不动（v16.4 刚拍板）。
+- deck 整体重排仍未做（选项 A/B/C 仍待用户拍板）。
+
+### 验证结果
+
+| 项 | 结果 |
+|---|---|
+| 幻灯片数 / 演讲备注 / 时间预算 | 33 / 33 / 36.0 min（均不变） |
+| 结构 QA | ISSUES: 0 |
+| 字体缺字审计 | 与 v16.4 **逐条相同**（15 条历史项，零新增；run 数 382→383 / 284→285 = 新增那一行） |
+| 按页序整份代码流（Mathlib / core-only） | exit=0 / exit=0 |
+| 30 个代码块逐块编译 | 0 个真语法/类型错误 |
+| 练习文件（Mathlib / core-only） | exit=0 / exit=0 |
+| **v16.4 ↔ v16.5 逐页像素比对** | **只有 p01（版本号）/ p19 变化，其余 31 页像素完全一致** |
+| 渲染目视 | p19 整页 + 左栏 300 dpi 放大复核：新行单行未折行、未溢出蓝框 |
+| 公开版 vs 教学版正文逐段 diff | 0 差异行（599 / 599 段） |
+| 公开版 notesSlide 残留 | 0 |
+
+v16.5 的真源脚本：`src/gen_v16_5.py`（由 `_review_v160/make_v16_5.py` 从 v16.4 真源打 8 步补丁生成）。
+
+---
+
+## v16.4 —— 第 9 页落点句加作用域（上一版）
 
 **2026-10-30**｜33 页（页数不变）｜时间预算 36.0 min｜元数据 `revision=10`
 
